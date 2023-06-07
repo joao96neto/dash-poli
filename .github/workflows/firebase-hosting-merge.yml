@@ -7,14 +7,25 @@ name: Deploy to Firebase Hosting on merge
     branches:
       - main
 jobs:
-  build_and_deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - run: ng build && firebase deploy
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
         with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_DASHBOARD_POLI }}'
-          channelId: live
-          projectId: dashboard-poli
+          node-version: 16.14.0
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Angular app
+        run: npm run build -- --prod
+
+      - name: Deploy to Firebase Hosting
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only hosting
